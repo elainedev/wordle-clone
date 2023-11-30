@@ -7,17 +7,16 @@ const WORD_LENGTH: number = 5;
 
 type RowProps = {
   guess: string,
-  solution: string
+  solution: string,
+  isSubmitted: boolean
 }
 
 type tileFormat = {char: string, color: 'green' | 'yellow' | 'gray' | 'none'};
 type charFormat = (string|null)[];
 
-function Wordle() {
 
+const Wordle = () => {
   const [solution, setSolution] = useState<string>('puppy');
-  const [guess, setGuess] = useState<string[]>([]);
-
   // useEffect(() => {
   //   const fetchSolution = async () => {
   //     try {
@@ -37,23 +36,16 @@ function Wordle() {
   //   fetchSolution();
 
   // }, [])
-
   return (
-    <>
-      {/* {rowEntries.map((rowEntry, idx) => 
-        <Row
-          key={`row-${idx}`}
-          rowEntry={rowEntry}
-          solution={solution}
-        />
-      )} */}
+    <div className='board'>
       {solution}
-      <Row
+       <Row
           // key={`row-${idx}`}
           guess={'uppap'}
           solution={solution}
-        />
-    </>
+          isSubmitted={false}
+       />
+    </div>
   )
 }
 
@@ -62,16 +54,25 @@ const Row = ({guess, solution, isSubmitted}: RowProps) => {
   const formatGuess = () => {
     const solutionArray: charFormat = [...solution];
     const formattedGuess: tileFormat[] = [...guess].map(char => {
-      return {char, color: isSubmitted ? 'gray' : 'none'};
+      return {char, color: 'none'};
     })
 
+    if (!isSubmitted) {
+      return formattedGuess;
+    }
+
+    // set tiles with correct letters in the correct positions to green; otherwise, set tiles to gray
     formattedGuess.forEach((tile, i) => {
       if (solution[i] === tile.char) {
         tile.color = 'green';
         solutionArray[i] = null;
       }
+      else {
+        tile.color = 'gray';
+      }
     })
 
+    // set tiles with correct letters in incorrect positions to yellow
     formattedGuess.forEach(tile => {
       if (solutionArray.includes(tile.char) && tile.color != 'green') {
         tile.color = 'yellow';
