@@ -1,8 +1,19 @@
 # Wordle Clone
 
+## Instructions to Run the App
+Visit https://elainedev.github.io/wordle-clone/ to see the project in action on GitHub Pages!
+
+Alternatively:
+
+1. git clone into project directory
+2. `cd` into project directory (main branch)
+3. run `npm i`
+4. run `npm run dev`
+5. copy and paste the localhost url displayed in the terminal into your browser (the url should be http://localhost:5173).
+
 ## Implementation Notes
-- implemented with React + TypeScript + Vite
-- uses API endpoint https://rhdzmota.com/files/wordle.json to fetch list of possible words
+- Implemented with React + TypeScript + Vite
+- Uses API endpoint https://rhdzmota.com/files/wordle.json to fetch list of possible words
   - if the API fails to fetch, the default word is "puppy" (I chose this word because it has 3 Ps, which is a great way to test the logic of the yellow tiles)
 - Messages:
   - Shows congratulatory message if user successfully solves the game
