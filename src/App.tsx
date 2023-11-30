@@ -1,22 +1,50 @@
-import { useEffect, useState } from 'react'
-import './App.css'
+import { useEffect, useReducer, useState } from 'react'
+import './App.scss'
 
 const WORD_LIST_URL: string = 'https://rhdzmota.com/files/wordle.json';
-const ROWS: number = 6;
+const NUM_ROWS: number = 6;
 const WORD_LENGTH: number = 5;
+const ALPHABET: string = 'abcdefghijklmnopqrstuvwxyz';
 
-type RowProps = {
-  guess: string,
-  solution: string,
-  isSubmitted: boolean
+function reducer(state: GuessState, {key, solution}: ActionState) {
+  const {guesses, currentGuess, message} = state;
+  if (guesses.includes(solution)) {
+    return state;
+  }
+
+  switch (key) {
+    case 'Backspace':
+      return {guesses, currentGuess: currentGuess.slice(0, -1), message};
+    case 'Enter': {
+      if (currentGuess.length < WORD_LENGTH) {
+        return {guesses, currentGuess, message: 'Not enough letters'}
+      }
+      const currentGuessIndex = guesses.findIndex(guess => guess === null);
+      const guessesCopy = [...guesses];
+      guessesCopy[currentGuessIndex] = currentGuess;
+      return {guesses: guessesCopy, currentGuess: '', message};
+    }
+    default: {
+      const isLetter = key.length === 1 && ALPHABET.includes(key.toLowerCase());
+
+      // add letter to currentGuess
+      if (isLetter && currentGuess.length < WORD_LENGTH) {
+        return {guesses, currentGuess: currentGuess + key.toLowerCase(), message};
+      }
+      return state;
+    }
+  }
 }
 
-type tileFormat = {char: string, color: 'green' | 'yellow' | 'gray' | 'none'};
-type charFormat = (string|null)[];
-
-
-const Wordle = () => {
+function Wordle() {
+  const [{guesses, currentGuess, message}, dispatch] = useReducer(reducer, {
+    guesses: Array(NUM_ROWS).fill(null),
+    currentGuess: '',
+    message: null
+  });
   const [solution, setSolution] = useState<string>('puppy');
+
+  // fetch the word solution
   // useEffect(() => {
   //   const fetchSolution = async () => {
   //     try {
@@ -36,15 +64,35 @@ const Wordle = () => {
   //   fetchSolution();
 
   // }, [])
+
+  // on keydown event, dispatch key code and solution to the reducer function
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      dispatch({key: event.key, solution});
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [solution])
+
+  const currentGuessIndex = guesses.findIndex(guess => guess === null);
+
   return (
-    <div className='board'>
-      {solution}
-       <Row
-          // key={`row-${idx}`}
-          guess={'uppap'}
-          solution={solution}
-          isSubmitted={false}
-       />
+    <div className='page'>
+      <h1>Wordle</h1>
+      <div className='board'>
+        {
+          guesses.map((guess, i) => 
+            <Row
+              key={`row-${i}`}
+              guess={(currentGuessIndex === i ? currentGuess : guess ?? '').padEnd(WORD_LENGTH)}
+              solution={solution}
+              isSubmitted={currentGuessIndex > i}
+            />
+            
+          )}
+      </div>
     </div>
   )
 }
@@ -52,10 +100,11 @@ const Wordle = () => {
 const Row = ({guess, solution, isSubmitted}: RowProps) => {
   
   const formatGuess = () => {
-    const solutionArray: charFormat = [...solution];
-    const formattedGuess: tileFormat[] = [...guess].map(char => {
+    const solutionArray: CharFormat = [...solution];
+    const formattedGuess: TileFormat[] = [...guess].map(char => {
       return {char, color: 'none'};
     })
+    console.log('formattedGuess1', formattedGuess)
 
     if (!isSubmitted) {
       return formattedGuess;
@@ -79,19 +128,32 @@ const Row = ({guess, solution, isSubmitted}: RowProps) => {
         solutionArray[solutionArray.indexOf(tile.char)] = null;
       }
     })
-
+    console.log(formattedGuess)
     return formattedGuess;
   }
 
   return (
-    <>
+    <div className='row'>
       {
-        formatGuess().map(tile => 
-            <div className={`tile ${tile.color}`}>{tile.char} {tile.color}</div>
+        formatGuess().map((tile, i) => 
+            <div className={`tile ${tile.color} ${isSubmitted ? 'submitted' : ''}`} key={`${tile.char}-${i}`}>{tile.char}</div>
         ) 
       }
-    </>
+    </div>
   )
 }
 
+type RowProps = {
+  guess: string,
+  solution: string,
+  isSubmitted: boolean
+}
+
+type GuessState = {guesses: (string|null)[], currentGuess: string, message: null|string}
+type ActionState = {key: string, solution: string};
+type TileFormat = {char: string, color: 'green' | 'yellow' | 'gray' | 'none'};
+type CharFormat = (string|null)[];
+
 export default Wordle;
+
+
