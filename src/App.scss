@@ -28,13 +28,9 @@
       justify-content: center;
       font-size: 2rem;
       text-transform: uppercase;
-      color: white;
       font-weight: 700;
-
-      &.none {
-        border: 1px solid #ccc;
-        color: #3a3a3a;
-      }
+      color: #3a3a3a;
+      border: 1px solid #ccc;
 
       &.green {
         background-color: #6aaa64;
@@ -49,22 +45,23 @@
       }
 
       &.submitted {
+        color: white;
         animation: flip 0.5s ease forwards;
       }
 
       @keyframes flip {
         0% {
           transform: rotateX(0);
+          background: transparent;
         }
         50% {
           transform: rotateX(90deg);
+          background: transparent;
         }
         100% {
           transform: rotateX(0);
         }
       }
-
-
     }
   }
   
