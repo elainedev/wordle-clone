@@ -2,7 +2,7 @@ import { useEffect, useReducer, useState } from 'react'
 import './App.scss'
 
 const WORD_LIST_URL: string = 'https://rhdzmota.com/files/wordle.json';
-const NUM_ROWS: number = 6;
+const NUM_GUESSES: number = 6;
 const WORD_LENGTH: number = 5;
 const ALPHABET: string = 'abcdefghijklmnopqrstuvwxyz';
 
@@ -22,6 +22,14 @@ function reducer(state: GuessState, {key, solution}: ActionState) {
       const currentGuessIndex = guesses.findIndex(guess => guess === null);
       const guessesCopy = [...guesses];
       guessesCopy[currentGuessIndex] = currentGuess;
+      let message = null;
+
+      if (currentGuess === solution) {
+        message = "You solved it!"
+      }
+      else if (currentGuessIndex === NUM_GUESSES - 1) {
+        message = `answer: ${solution}`;
+      }
       return {guesses: guessesCopy, currentGuess: '', message};
     }
     default: {
@@ -38,7 +46,7 @@ function reducer(state: GuessState, {key, solution}: ActionState) {
 
 function Wordle() {
   const [{guesses, currentGuess, message}, dispatch] = useReducer(reducer, {
-    guesses: Array(NUM_ROWS).fill(null),
+    guesses: Array(NUM_GUESSES).fill(null),
     currentGuess: '',
     message: null
   });
@@ -93,6 +101,7 @@ function Wordle() {
             
           )}
       </div>
+      {message}
     </div>
   )
 }
@@ -104,7 +113,6 @@ const Row = ({guess, solution, isSubmitted}: RowProps) => {
     const formattedGuess: TileFormat[] = [...guess].map(char => {
       return {char, color: 'none'};
     })
-    console.log('formattedGuess1', formattedGuess)
 
     if (!isSubmitted) {
       return formattedGuess;
@@ -128,7 +136,6 @@ const Row = ({guess, solution, isSubmitted}: RowProps) => {
         solutionArray[solutionArray.indexOf(tile.char)] = null;
       }
     })
-    console.log(formattedGuess)
     return formattedGuess;
   }
 
