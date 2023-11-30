@@ -45,25 +45,25 @@ function Wordle() {
   const [solution, setSolution] = useState<string>('puppy');
 
   // fetch the word solution
-  // useEffect(() => {
-  //   const fetchSolution = async () => {
-  //     try {
-  //       const response = await fetch(WORD_LIST_URL);
+  useEffect(() => {
+    const fetchSolution = async () => {
+      try {
+        const response = await fetch(WORD_LIST_URL);
 
-  //       if (!response.ok) {
-  //         throw new Error('Response was not OK');
-  //       }
-  //       const wordList = await response.json();
-  //       setSolution(wordList[Math.floor(Math.random() * wordList.length)]);
-  //     }
-  //     catch (error) {
-  //       console.log('Fetch Error: ', error);
-  //       setSolution('apple');
-  //     }
-  //   }
-  //   fetchSolution();
+        if (!response.ok) {
+          throw new Error('Response was not OK');
+        }
+        const wordList = await response.json();
+        setSolution(wordList[Math.floor(Math.random() * wordList.length)]);
+      }
+      catch (error) {
+        console.log('Fetch Error: ', error);
+        setSolution('puppy');
+      }
+    }
+    fetchSolution();
 
-  // }, [])
+  }, [])
 
   // on keydown event, dispatch key code and solution to the reducer function
   useEffect(() => {
@@ -88,7 +88,7 @@ function Wordle() {
               key={`row-${i}`}
               guess={(currentGuessIndex === i ? currentGuess : guess ?? '').padEnd(WORD_LENGTH)}
               solution={solution}
-              isSubmitted={currentGuessIndex > i}
+              isSubmitted={currentGuessIndex > i || currentGuessIndex === -1}
             />
             
           )}
